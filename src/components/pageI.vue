@@ -1,12 +1,13 @@
 <template>
   <div>
-    <router-view></router-view>
+    {{name}}
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App',
-  data: () => ({})
+  data: () => ({
+    name: 'PageI'
+  })
 }
 </script>

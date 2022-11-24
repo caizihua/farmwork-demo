@@ -1,6 +1,6 @@
 <template>
-  <div style="background: rgb(250, 250, 250); height: 2000px">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh">
+  <div>
+    <v-row class="d-flex justify-center align-center">
       <v-col id="pct_emr_field" :cols="2">
         <v-text-field
           outlined
@@ -32,15 +32,10 @@ export default {
     submit () {
       this.send()
     },
-    check () {
-    },
-    send () {
-    },
-    watch: {},
-    mounted () {
-    },
-    destroyed () {
-    }
+    check () {},
+    send () {},
+    mounted () {},
+    destroyed () {}
   }
 }
 </script>
