@@ -7,8 +7,6 @@ import router from './router.js'
 
 Vue.config.productionTip = false
 
-localStorage.setItem('projectRole', 'admin')
-
 new Vue({
   router,
   vuex,

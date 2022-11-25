@@ -50,28 +50,23 @@ export default {
     role: {},
     drawer: null,
     selectedItem: 0,
-    roleItems: [{
-      name: 'itemH',
-      value: 'itemH',
-      icon: 'mdi-alpha-h-box',
-      route: '/8'
-    },
-    {
-      name: 'itemI',
-      value: 'itemI',
-      icon: 'mdi-alpha-i-box',
-      route: '/9'
-    }]
+    roleItems: []
   }),
   methods: {
     toPage (item) {
-      this.$router.replace(item.route)
+      this.$router.push(`/${this.role.value}${item.route}`)
     }
   },
   created () {
     const role = localStorage.getItem('projectRole')
+    if (!role) {
+      return this.$router.push('/login')
+    }
     this.role = roleMenu.roleList.find(e => e.value === role)
-    console.log(role)
+    this.roleItems = roleMenu[role]
+    this.selectedItem = roleMenu[role].findIndex(e =>
+      e.route === this.$route.path.match(/\W(\w+)/g)[1]
+    )
   }
 }
 </script>

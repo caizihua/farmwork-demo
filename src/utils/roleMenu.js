@@ -19,7 +19,7 @@ const roleList = [
 const admin = [
   {
     name: 'itemA',
-    value: 'item1',
+    value: 'itemA',
     icon: 'mdi-alpha-a-box',
     route: '/1'
   },
