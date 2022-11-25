@@ -79,5 +79,4 @@ const roleC = [
     route: '/9'
   }
 ]
-
 export { roleList, roleA, roleB, roleC, admin }
