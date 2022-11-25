@@ -49,7 +49,6 @@ const roleA = [
     icon: 'mdi-alpha-e-box',
     route: '/5'
   }
-
 ]
 const roleB = [
   {
