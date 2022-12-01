@@ -44,18 +44,6 @@ const roleB = [
     component: () => import('./components/pageG')
   }
 ]
-const roleC = [
-  {
-    name: 'itemH',
-    path: '8',
-    component: () => import('./components/pageH')
-  },
-  {
-    name: 'itemI',
-    path: '9',
-    component: () => import('./components/pageI')
-  }
-]
 const router = new Router({
   mode: 'history',
   routes: [
@@ -63,12 +51,12 @@ const router = new Router({
       name: 'index',
       path: '/',
       redirect: '/login',
-      component: () => import('./components/indexPage')
+      component: () => import('./components/loginPage')
     },
     {
       name: 'login',
       path: '/login',
-      component: () => import('./components/indexPage')
+      component: () => import('./components/loginPage')
     },
     {
       name: 'admin',
@@ -90,23 +78,20 @@ const router = new Router({
       redirect: `/roleB/${roleB[0].path}`,
       component: () => import('./components/adminPage'),
       children: roleB
-    },
-    {
-      name: 'roleC',
-      path: '/roleC',
-      redirect: `/roleC/${roleC[0].path}`,
-      component: () => import('./components/adminPage'),
-      children: roleC
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  const arr = to.path.match(/\W(\w+)/g)
-  if (!roleMenu[arr[0].slice(1)]) {
+  const arr = to.path.match(/(?<=\W)(\w+)/g)
+  if (!roleMenu[arr[0]]) {
     return next()
   }
-  if (!roleMenu[arr[0].slice(1)].find(e => e.route === arr[1]) || arr[0].slice(1) !== localStorage.getItem('projectRole')) {
+  const role = roleMenu[arr[0]].find(e => e.route.slice(1) === arr[1])
+  const lsValue = sessionStorage.getItem('routerList') && JSON.parse(sessionStorage.getItem('routerList'))[0].value
+  console.log(arr[0], lsValue)
+  if (!role || arr[0] !== lsValue) {
+    alert('router：请重试！')
     return router.push('/login')
   }
   next()

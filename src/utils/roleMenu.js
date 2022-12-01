@@ -18,19 +18,19 @@ const roleList = [
 ]
 const admin = [
   {
-    name: 'itemA',
+    name: '一级标题A',
     value: 'itemA',
     icon: 'mdi-alpha-a-box',
     route: '/1'
   },
   {
-    name: 'itemB',
+    name: '一级标题B',
     value: 'itemB',
     icon: 'mdi-alpha-b-box',
     route: '/2'
   },
   {
-    name: 'itemC',
+    name: '一级标题C',
     value: 'itemC',
     icon: 'mdi-alpha-c-box',
     route: '/3'
@@ -38,13 +38,13 @@ const admin = [
 ]
 const roleA = [
   {
-    name: 'itemD',
+    name: '一级标题D',
     value: 'itemD',
     icon: 'mdi-alpha-d-box',
     route: '/4'
   },
   {
-    name: 'itemE',
+    name: '一级标题E',
     value: 'itemE',
     icon: 'mdi-alpha-e-box',
     route: '/5'
@@ -52,30 +52,37 @@ const roleA = [
 ]
 const roleB = [
   {
-    name: 'itemF',
+    name: '一级标题F',
     value: 'itemF',
     icon: 'mdi-alpha-f-box',
     route: '/6'
   },
   {
-    name: 'itemG',
+    name: '一级标题G',
     value: 'itemG',
     icon: 'mdi-alpha-g-box',
     route: '/7'
   }
 ]
-const roleC = [
+
+const itemA = [
   {
-    name: 'itemH',
-    value: 'itemH',
-    icon: 'mdi-alpha-h-box',
-    route: '/8'
+    name: '二级标题A1',
+    value: 'itemA1',
+    icon: 'mdi-alpha-a-box',
+    route: '/i1'
   },
   {
-    name: 'itemI',
-    value: 'itemI',
-    icon: 'mdi-alpha-i-box',
-    route: '/9'
+    name: '二级标题A2',
+    value: 'itemA2',
+    icon: 'mdi-alpha-b-box',
+    route: '/i2'
+  },
+  {
+    name: '二级标题A3',
+    value: 'itemA3',
+    icon: 'mdi-alpha-c-box',
+    route: '/i3'
   }
 ]
-export { roleList, roleA, roleB, roleC, admin }
+export { roleList, roleA, roleB, admin, itemA }

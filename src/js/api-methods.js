@@ -2,7 +2,7 @@ import to from 'await-to-js'
 import axios from 'axios'
 
 const urlPrefix = (params) => {
-  return '/pct' + params
+  return '/api' + params
 }
 
 const methods = ({ url, method, params }) => {
