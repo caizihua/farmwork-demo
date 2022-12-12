@@ -129,7 +129,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="chart1st" :style="{height:`${chartHeight.chart1st}px`}"></div>
+        <div id="firstChart" :style="{height:`${chartHeight.chart1st}px`}"></div>
         <div class="d-flex align-center mb-3">
           <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
           <div>
@@ -177,7 +177,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="chart2nd" :style="{height:`${chartHeight.chart2nd}px`}"></div>
+        <div id="secondChart" :style="{height:`${chartHeight.chart2nd}px`}"></div>
         <div class="d-flex align-center mb-3">
           <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
           <div>
@@ -225,7 +225,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="chart3rd" :style="{height:`${chartHeight.chart3rd}px`}"></div>
+        <div id="thirdChart" :style="{height:`${chartHeight.chart3rd}px`}"></div>
       </div>
     </v-card>
     <skeleton-modal ref="titleDialog">
@@ -244,6 +244,7 @@
 </template>
 
 <script>
+import * as Echarts from 'echarts'
 import skeletonModal from './skeleton-modal'
 
 export default {
@@ -293,7 +294,10 @@ export default {
       entryValue: null,
       items: [],
       selectedItems: []
-    }
+    },
+    firstChart: null,
+    secondChart: null,
+    thirdChart: null
   }),
   components: { skeletonModal },
   props: ['wrapWidth', 'wrapHeight'],
@@ -361,6 +365,61 @@ export default {
     },
     clearLEntry (value) {
       this[value].selectedItems = []
+    },
+    initChart1st () {
+      const option = {
+        xAxis: {
+          type: 'time',
+          min: '2022-12-01',
+          max: '2022-12-31',
+          axisLine: {
+            show: true
+          },
+          axisTick: {
+            show: true
+          },
+          axisLabel: {
+            formatter: '{yyyy}-{MM}-{dd}'
+          }
+        },
+        yAxis: {
+          data: ['b', 'c'],
+          axisLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          }
+        },
+        grid: {
+          top: '5%',
+          left: '2%',
+          right: '2%',
+          bottom: '5%',
+          containLabel: true
+        },
+        visualMap: [{
+          type: 'piecewise',
+          categories: [0, 1, 2, 3],
+          show: false
+        }],
+        series: [{
+          symbolSize: 10,
+          data: [
+            ['2022-12-02', 'b'],
+            ['2022-12-03', 'b'],
+            ['2022-12-04', 'c'],
+            ['2022-12-05', 'c'],
+            ['2022-12-06', 'c'],
+            ['2022-12-07', 'b'],
+            ['2022-12-08', 'b'],
+            ['2022-12-09', 'b'],
+            ['2022-12-10', 'b']
+          ],
+          type: 'scatter'
+        }]
+      }
+      this.firstChart.setOption(option)
     }
   },
   created () {
@@ -388,6 +447,10 @@ export default {
       { inputName: '折线图事件3', key: 2 },
       { inputName: '折线图事件4', key: 3 }
     ]
+  },
+  mounted () {
+    this.firstChart = Echarts.init(document.getElementById('firstChart'))
+    this.initChart1st()
   }
 }
 </script>
