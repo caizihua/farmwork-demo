@@ -43,8 +43,8 @@
       </v-list>
     </v-navigation-drawer>
     <v-main style="background: rgb(250, 250, 250); height: 100%">
-      <v-container class="pa-6" fluid>
-        <router-view :wrapWidth="wrapWidth - 250" :wrapHeight="wrapHeight - 110"></router-view>
+      <v-container fluid>
+        <router-view :wrapWidth="wrapWidth - 250" :wrapHeight="wrapHeight - 90"></router-view>
       </v-container>
     </v-main>
   </v-app>

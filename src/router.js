@@ -89,7 +89,6 @@ router.beforeEach((to, from, next) => {
   }
   const role = roleMenu[arr[0]].find(e => e.route.slice(1) === arr[1])
   const lsValue = sessionStorage.getItem('routerList') && JSON.parse(sessionStorage.getItem('routerList'))[0].value
-  console.log(arr[0], lsValue)
   if (!role || arr[0] !== lsValue) {
     alert('router：请重试！')
     return router.push('/login')

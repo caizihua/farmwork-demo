@@ -1,0 +1,33 @@
+/* 自定义 */
+.el-table .zebra {
+  background-color: #F8F8F8;
+}
+
+/* 调整整体 */
+.el-table__header th {
+  background-color: #F6F9F9 !important;
+  padding: 4px 0 !important;
+}
+.el-table__header th,
+.el-table__body td {
+  font-size: 0.825rem !important;
+  font-weight: 400 !important;
+  color: #333;
+  border-bottom-width: 0 !important;
+}
+/* Element Table 组件: 修改 el-table 底部线条 */
+.el-table::before {
+  height: 0;
+}
+/* Element Table 组件: 修改 单元格底部线条 */
+.el-table__fixed::before {
+  height: 0
+}
+
+.el-table__column-filter-trigger i {
+  font-size: 1rem;
+}
+.el-table__header .el-icon-arrow-down:before {
+  content: '';
+}
+

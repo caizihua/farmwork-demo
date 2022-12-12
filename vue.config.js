@@ -6,13 +6,6 @@ module.exports = defineConfig({
   lintOnSave: true,
   devServer: {
     hot: true,
-    https: false,
-    proxy: {
-      '/api': {
-        target: '',
-        changeOrigin: true,
-        pathRewrite: { "^/api": "" }
-      }
-    }
+    https: false
   },
 })
