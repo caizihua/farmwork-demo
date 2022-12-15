@@ -331,7 +331,8 @@ export default {
     endDate: '',
     firstSeriesData: [],
     secondSeriesData: [],
-    thirdSeriesData: []
+    thirdSeriesData: [],
+    countSelectedList: 0
   }),
   props: ['wrapWidth', 'wrapHeight'],
   watch: {
@@ -340,7 +341,8 @@ export default {
       this.chartSource.leftObj.remarks = val.remarks || ''
       this.chartSource.leftObj.items = val.selectedEntryList || []
     },
-    'chartSource.firstChart.selectedList' (val) {
+    'chartSource.firstChart.selectedList' (val, oldVal) {
+      if (val === oldVal && this.countSelectedList++ > 2) return
       const arr = []
       const contentArr = []
       this.firstSeriesData = []
@@ -365,7 +367,8 @@ export default {
       this.chartSource.firstChart.option.tooltip = contentArr
       this.initChart1st()
     },
-    'chartSource.secondChart.selectedList' (val) {
+    'chartSource.secondChart.selectedList' (val, oldVal) {
+      if (val === oldVal && this.countSelectedList++ > 2) return
       const arr = []
       const contentArr = []
       this.secondSeriesData = []
@@ -388,18 +391,28 @@ export default {
       this.chartSource.secondChart.option.tooltip = contentArr
       this.initChart2nd()
     },
-    'chartSource.thirdChart.selectedList' (val) {
-      const arr = []
+    'chartSource.thirdChart.selectedList' (val, oldVal) {
+      if (val === oldVal && this.countSelectedList++ > 2) return
+      const titleArr = []
       this.thirdSeriesData = []
-      val.forEach(e => {
-        // 存入标题
-        arr.push(e.title)
-        const j = Math.ceil(Math.random() * 20)
+      val.forEach((e) => {
+        titleArr.push(e.title)
+        const arr = ['01', '05', '08', '13', '17', '21', '25']
+        const dateArr = []
+        arr.forEach(t => {
+          dateArr.push([moment().format(`YYYY-MM-${t} 00:00`), Math.floor(Math.random() * 97 + 2)])
+        })
         this.thirdSeriesData.push({
-          value: [moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), e.title]
+          name: e.title,
+          type: 'line',
+          data: dateArr
         })
       })
-      this.chartSource.thirdChart.option.yAxisData = arr
+      this.chartSource.thirdChart.option.yAxisData = titleArr
+      if (this.thirdChartData) {
+        Echarts.dispose(this.thirdChartData)
+        this.thirdChartData = Echarts.init(document.getElementById('thirdChartId'))
+      }
       this.initChart3rd()
     }
   },
@@ -453,6 +466,9 @@ export default {
         },
         yAxis: {
           data: this.chartSource.firstChart.option.yAxisData,
+          splitLine: {
+            show: true
+          },
           axisLine: {
             show: false
           },
@@ -520,6 +536,9 @@ export default {
         },
         yAxis: {
           data: this.chartSource.secondChart.option.yAxisData,
+          splitLine: {
+            show: true
+          },
           axisLine: {
             show: false
           },
@@ -568,14 +587,9 @@ export default {
       const option = {
         xAxis: {
           type: 'time',
-          min: '2022-12-01',
-          max: '2022-12-31',
-          axisLine: {
-            show: true
-          },
-          axisTick: {
-            show: true
-          },
+          min: this.startDate,
+          max: this.endDate,
+          show: true,
           axisLabel: {
             formatter: '{yyyy}-{MM}-{dd}'
           }
@@ -588,6 +602,9 @@ export default {
           },
           axisTick: {
             show: false
+          },
+          axisLabel: {
+            show: false
           }
         },
         grid: {
@@ -596,18 +613,10 @@ export default {
           right: '2%',
           bottom: '10%'
         },
-        series: [
-          {
-            name: 'Email',
-            type: 'line',
-            data: [['2022-12-01', 10], ['2022-12-03', 20], ['2022-12-05', 30], ['2022-12-07', 40], ['2022-12-09', 50], ['2022-12-11', 60]]
-          },
-          {
-            name: 'Union Ads',
-            type: 'line',
-            data: [['2022-12-01', 15], ['2022-12-03', 25], ['2022-12-05', 35], ['2022-12-07', 45], ['2022-12-09', 55], ['2022-12-11', 65]]
-          }
-        ]
+        tooltip: {
+          show: true
+        },
+        series: this.thirdSeriesData
       }
       this.thirdChartData.setOption(option)
     }
@@ -2605,13 +2614,16 @@ export default {
           if (DATE && date) { // 筛选时间点和折线图
             if (NUMBER_INPUT_BOX && revDate && len === 2) {
               this.chartSource.thirdChart.items.push(e)
+              this.chartSource.thirdChart.selectedList.push(e)
               break
             } else {
               this.chartSource.firstChart.items.push(e)
+              this.chartSource.firstChart.selectedList.push(e)
               break
             }
           } else if (DATE && daterange) { // 筛选时间段
             this.chartSource.secondChart.items.push(e)
+            this.chartSource.secondChart.selectedList.push(e)
             break
           }
         }
