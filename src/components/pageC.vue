@@ -196,6 +196,7 @@ import SkeletonPagination from './skeleton-pagination'
 import CustomDialog from './custom-dialog'
 
 export default {
+  name: 'eRecord',
   components: { SkeletonPagination, CustomDialog },
   data () {
     return {
@@ -282,6 +283,7 @@ export default {
     },
     // 跳转病程管理
     toDiseaseManagement () {
+      this.$router.push('/eRecord')
     },
     // 跳转新增记录
     createNewRecord () {
@@ -303,183 +305,15 @@ export default {
     }
   },
   created () {
-    this.resData = [
-      {
+    for (let i = 0; i < 30; i++) {
+      this.resData.push({
         name: '张三',
         gender: '女',
-        patientId: '001',
+        patientId: `${i}`,
         birthday: '2022-10-10',
         recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '002',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }, {
-        name: '张三',
-        gender: '女',
-        patientId: '003',
-        birthday: '2022-10-10',
-        recentDia: '肺炎'
-      }
-    ]
+      })
+    }
   }
 }
 </script>

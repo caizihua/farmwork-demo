@@ -311,7 +311,11 @@ export default {
         id: 2,
         title: '事件记录',
         items: [], // 全部输入项
-        selectedList: [] // 选中的输入项
+        selectedList: [], // 选中的输入项
+        option: {
+          secondYAxisData: [],
+          secondTooltip: []
+        }
       },
       thirdChart: {
         id: 3,
@@ -322,7 +326,9 @@ export default {
       firstSeriesData: []
     },
     startDate: '',
-    endDate: ''
+    endDate: '',
+    firstSeriesData: [],
+    secondSeriesData: []
   }),
   props: ['wrapWidth', 'wrapHeight'],
   watch: {
@@ -355,6 +361,29 @@ export default {
       this.chartSource.firstChart.option.firstYAxisData = arr
       this.chartSource.firstChart.option.firstTooltip = contentArr
       this.initChart1st()
+    },
+    'chartSource.secondChart.selectedList' (val) {
+      const arr = []
+      const contentArr = []
+      this.secondSeriesData = []
+      val.forEach(e => {
+        // 存入标题
+        arr.push(e.title)
+        // 存入tooltip信息
+        const ttArr = []
+        e.selectedEntryList.forEach(ele => {
+          ttArr.push(ele.inputName)
+        })
+        contentArr.push(ttArr)
+        const j = Math.ceil(Math.random() * 20)
+        this.secondSeriesData.push({
+          value: [e.title, moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), moment().format(`YYYY-MM-${j + 4 > 9 ? '' : 0}${j + 4} 00:00`)],
+          tipData: ttArr
+        })
+      })
+      this.chartSource.secondChart.option.secondYAxisData = arr
+      this.chartSource.secondChart.option.secondTooltip = contentArr
+      this.initChart2nd()
     }
   },
   methods: {
@@ -386,7 +415,6 @@ export default {
     },
     clearEntry (value) {
       this.chartSource[value].selectedList = []
-      console.log(this.chartSource)
     },
     initChart1st () {
       const option = {
@@ -411,7 +439,6 @@ export default {
           confine: true,
           borderWidth: 0,
           formatter: (params) => {
-            console.log(params)
             const div = document.createElement('div')
             Object.assign(div.style, {
               minWidth: '150px',
@@ -441,6 +468,23 @@ export default {
       this.firstChartData.setOption(option)
     },
     initChart2nd () {
+      const renderItem = (params, api) => {
+        const rowData = api.value(0)
+        const start = api.coord([api.value(1), rowData])
+        const end = api.coord([api.value(2), rowData])
+        const rectShape = Echarts.graphic.clipRectByRect({
+          x: start[0],
+          y: start[1] - 25 / 2,
+          width: end[0] - start[0],
+          height: 25
+        }, {
+          x: params.coordSys.x,
+          y: params.coordSys.y,
+          width: params.coordSys.width,
+          height: params.coordSys.height
+        })
+        return (rectShape && { type: 'rect', transition: ['shape'], shape: rectShape, style: api.style() })
+      }
       const option = {
         xAxis: {
           type: 'time',
@@ -457,7 +501,7 @@ export default {
           }
         },
         yAxis: {
-          data: ['b', 'c'],
+          data: this.chartSource.secondChart.option.secondYAxisData,
           axisLine: {
             show: false
           },
@@ -474,37 +518,13 @@ export default {
           containLabel: true
         },
         series: [{
-          symbolSize: 10,
-          data: [
-            {
-              value: ['2022-12-02', 'b']
-            },
-            {
-              value: ['2022-12-03', 'b']
-            },
-            {
-              value: ['2022-12-04', 'c']
-            },
-            {
-              value: ['2022-12-05', 'c']
-            },
-            {
-              value: ['2022-12-06', 'c']
-            },
-            {
-              value: ['2022-12-07', 'b']
-            },
-            {
-              value: ['2022-12-08', 'b']
-            },
-            {
-              value: ['2022-12-09', 'b']
-            },
-            {
-              value: ['2022-12-10', 'b']
-            }
-          ],
-          type: 'scatter',
+          data: this.secondSeriesData,
+          type: 'custom',
+          encode: {
+            x: [1, 2],
+            y: 0
+          },
+          renderItem: renderItem,
           symbol: 'rect',
           colorBy: 'data'
         }]
