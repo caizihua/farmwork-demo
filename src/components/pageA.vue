@@ -381,11 +381,13 @@ export default {
           ttArr.push(ele.inputName)
         })
         contentArr.push(ttArr)
-        const j = Math.ceil(Math.random() * 20)
-        this.secondSeriesData.push({
-          value: [e.title, moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), moment().format(`YYYY-MM-${j + 4 > 9 ? '' : 0}${j + 4} 00:00`)],
-          tipData: ttArr
-        })
+        for (let i = 0; i < 3; i++) {
+          const j = Math.ceil(Math.random() * 4 + i * 8)
+          this.secondSeriesData.push({
+            value: [e.title, moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), moment().format(`YYYY-MM-${j + 2 > 9 ? '' : 0}${j + 3} 00:00`)],
+            tipData: ttArr
+          })
+        }
       })
       this.chartSource.secondChart.option.yAxisData = arr
       this.chartSource.secondChart.option.tooltip = contentArr
@@ -397,7 +399,7 @@ export default {
       this.thirdSeriesData = []
       val.forEach((e) => {
         titleArr.push(e.title)
-        const arr = ['01', '05', '08', '13', '17', '21', '25']
+        const arr = ['01', '05', '08', '13', '17', '21', '25', '28']
         const dateArr = []
         arr.forEach(t => {
           dateArr.push([moment().format(`YYYY-MM-${t} 00:00`), Math.floor(Math.random() * 97 + 2)])
@@ -614,7 +616,9 @@ export default {
           bottom: '10%'
         },
         tooltip: {
-          show: true
+          show: true,
+          trigger: 'axis',
+          z: -1
         },
         series: this.thirdSeriesData
       }
