@@ -278,8 +278,8 @@ export default {
     isSelectLData: false,
     isCreated: false, // 是否添加了子标题
     chartHeight: { // echart高度
-      chart1st: 200,
-      chart2nd: 200,
+      chart1st: 210,
+      chart2nd: 210,
       chart3rd: 270
     },
     firstChartData: null,
@@ -365,6 +365,7 @@ export default {
       })
       this.chartSource.firstChart.option.yAxisData = arr
       this.chartSource.firstChart.option.tooltip = contentArr
+      this.chartHeight.chart1st = 210 + (val.length - 3) * 70
       this.initChart1st()
     },
     'chartSource.secondChart.selectedList' (val, oldVal) {
@@ -391,6 +392,7 @@ export default {
       })
       this.chartSource.secondChart.option.yAxisData = arr
       this.chartSource.secondChart.option.tooltip = contentArr
+      this.chartHeight.chart2nd = 210 + (val.length - 3) * 70
       this.initChart2nd()
     },
     'chartSource.thirdChart.selectedList' (val, oldVal) {
@@ -427,6 +429,7 @@ export default {
       this.isCreated = false
       this.chartSource.leftObj.isMenu = false
       this.chartSource.leftObj.isEntryMenu = false
+      this.chartSource.leftObj.selectedList = []
     },
     addEntry (value) {
       this.chartSource[value].entryDialog = true
@@ -609,8 +612,11 @@ export default {
             show: false
           }
         },
+        legend: {
+          show: true
+        },
         grid: {
-          top: '5%',
+          top: '10%',
           left: '4%',
           right: '2%',
           bottom: '10%'
@@ -1980,6 +1986,531 @@ export default {
           {
             id: 8,
             title: '时间段2',
+            isMenu: false,
+            isEntryMenu: false,
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'DATE',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                }
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              }
+            ],
+            items: [],
+            entryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              }
+            ]
+          },
+          {
+            id: 14,
+            title: '时间段3',
+            isMenu: false,
+            isEntryMenu: false,
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'DATE',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                }
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              }
+            ],
+            items: [],
+            entryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              }
+            ]
+          },
+          {
+            id: 15,
+            title: '时间段4',
+            isMenu: false,
+            isEntryMenu: false,
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'DATE',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                }
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                }
+              }
+            ],
+            items: [],
+            entryList: [
+              {
+                key: 'Key46906585862B9650',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2时间',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key33AE6DCC339D8074',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容1',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: '',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: ''
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key1D9C9DFA6400632A',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容2',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              },
+              {
+                key: 'Key6954792B6E7F64F3',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间段2内容3',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'daterange',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'daterange'
+                },
+                isClass: false,
+                error: ''
+              }
+            ]
+          },
+          {
+            id: 16,
+            title: '时间段5',
             isMenu: false,
             isEntryMenu: false,
             isCreate: true,
