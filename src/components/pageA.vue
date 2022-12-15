@@ -303,8 +303,8 @@ export default {
         items: [],
         selectedList: [],
         option: {
-          firstYAxisData: [],
-          firstTooltip: []
+          yAxisData: [],
+          tooltip: []
         }
       },
       secondChart: {
@@ -313,22 +313,25 @@ export default {
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
         option: {
-          secondYAxisData: [],
-          secondTooltip: []
+          yAxisData: [],
+          tooltip: []
         }
       },
       thirdChart: {
         id: 3,
         title: '变化趋势',
         items: [], // 全部输入项
-        selectedList: [] // 选中的输入项
-      },
-      firstSeriesData: []
+        selectedList: [], // 选中的输入项
+        option: {
+          yAxisData: []
+        }
+      }
     },
     startDate: '',
     endDate: '',
     firstSeriesData: [],
-    secondSeriesData: []
+    secondSeriesData: [],
+    thirdSeriesData: []
   }),
   props: ['wrapWidth', 'wrapHeight'],
   watch: {
@@ -358,8 +361,8 @@ export default {
           })
         }
       })
-      this.chartSource.firstChart.option.firstYAxisData = arr
-      this.chartSource.firstChart.option.firstTooltip = contentArr
+      this.chartSource.firstChart.option.yAxisData = arr
+      this.chartSource.firstChart.option.tooltip = contentArr
       this.initChart1st()
     },
     'chartSource.secondChart.selectedList' (val) {
@@ -381,9 +384,23 @@ export default {
           tipData: ttArr
         })
       })
-      this.chartSource.secondChart.option.secondYAxisData = arr
-      this.chartSource.secondChart.option.secondTooltip = contentArr
+      this.chartSource.secondChart.option.yAxisData = arr
+      this.chartSource.secondChart.option.tooltip = contentArr
       this.initChart2nd()
+    },
+    'chartSource.thirdChart.selectedList' (val) {
+      const arr = []
+      this.thirdSeriesData = []
+      val.forEach(e => {
+        // 存入标题
+        arr.push(e.title)
+        const j = Math.ceil(Math.random() * 20)
+        this.thirdSeriesData.push({
+          value: [moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), e.title]
+        })
+      })
+      this.chartSource.thirdChart.option.yAxisData = arr
+      this.initChart3rd()
     }
   },
   methods: {
@@ -422,10 +439,20 @@ export default {
           type: 'time',
           min: this.startDate,
           max: this.endDate,
-          show: false
+          splitLine: {
+            show: false
+          },
+          axisLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: { show: false },
+          show: true
         },
         yAxis: {
-          data: this.chartSource.firstChart.option.firstYAxisData,
+          data: this.chartSource.firstChart.option.yAxisData,
           axisLine: {
             show: false
           },
@@ -452,10 +479,9 @@ export default {
         },
         grid: {
           top: '5%',
-          left: '3%',
+          left: '4%',
           right: '2%',
-          bottom: '5%',
-          containLabel: true
+          bottom: '10%'
         },
         series: [{
           symbolSize: [7, 25],
@@ -488,20 +514,12 @@ export default {
       const option = {
         xAxis: {
           type: 'time',
-          min: '2022-12-01',
-          max: '2022-12-31',
-          axisLine: {
-            show: true
-          },
-          axisTick: {
-            show: true
-          },
-          axisLabel: {
-            formatter: '{yyyy}-{MM}-{dd}'
-          }
+          min: this.startDate,
+          max: this.endDate,
+          show: false
         },
         yAxis: {
-          data: this.chartSource.secondChart.option.secondYAxisData,
+          data: this.chartSource.secondChart.option.yAxisData,
           axisLine: {
             show: false
           },
@@ -510,12 +528,27 @@ export default {
           },
           inverse: true
         },
+        tooltip: {
+          show: true,
+          confine: true,
+          borderWidth: 0,
+          formatter: (params) => {
+            const div = document.createElement('div')
+            Object.assign(div.style, {
+              minWidth: '150px',
+              border: 'none'
+            })
+            params.data.tipData.forEach(e => {
+              div.innerHTML += `<div style="padding-bottom: 5px">${e}:</div>`
+            })
+            return div
+          }
+        },
         grid: {
           top: '5%',
-          left: '2%',
+          left: '4%',
           right: '2%',
-          bottom: '5%',
-          containLabel: true
+          bottom: '10%'
         },
         series: [{
           data: this.secondSeriesData,
@@ -548,57 +581,33 @@ export default {
           }
         },
         yAxis: {
-          data: ['b', 'c'],
+          min: 0,
+          max: 100,
           axisLine: {
             show: false
           },
           axisTick: {
             show: false
-          },
-          inverse: true
+          }
         },
         grid: {
           top: '5%',
-          left: '2%',
+          left: '4%',
           right: '2%',
-          bottom: '5%',
-          containLabel: true
+          bottom: '10%'
         },
-        series: [{
-          symbolSize: 10,
-          data: [
-            {
-              value: ['2022-12-02', 'b']
-            },
-            {
-              value: ['2022-12-03', 'b']
-            },
-            {
-              value: ['2022-12-04', 'c']
-            },
-            {
-              value: ['2022-12-05', 'c']
-            },
-            {
-              value: ['2022-12-06', 'c']
-            },
-            {
-              value: ['2022-12-07', 'b']
-            },
-            {
-              value: ['2022-12-08', 'b']
-            },
-            {
-              value: ['2022-12-09', 'b']
-            },
-            {
-              value: ['2022-12-10', 'b']
-            }
-          ],
-          type: 'scatter',
-          symbol: 'rect',
-          colorBy: 'data'
-        }]
+        series: [
+          {
+            name: 'Email',
+            type: 'line',
+            data: [['2022-12-01', 10], ['2022-12-03', 20], ['2022-12-05', 30], ['2022-12-07', 40], ['2022-12-09', 50], ['2022-12-11', 60]]
+          },
+          {
+            name: 'Union Ads',
+            type: 'line',
+            data: [['2022-12-01', 15], ['2022-12-03', 25], ['2022-12-05', 35], ['2022-12-07', 45], ['2022-12-09', 55], ['2022-12-11', 65]]
+          }
+        ]
       }
       this.thirdChartData.setOption(option)
     }
