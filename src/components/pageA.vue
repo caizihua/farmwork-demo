@@ -25,6 +25,8 @@
               </template>
               <v-card class="d-flex flex-column pa-2" style="max-width:210px">
                 <v-text-field
+                  v-model="entryList.leftTitle.value"
+                  @input="leftTitleSearch"
                   prepend-inner-icon="mdi-magnify"
                   clearable
                   outlined
@@ -33,7 +35,7 @@
                   placeholder="请输入名称"
                 />
                 <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                  <div v-for="item in allLData" :key="item.id">
+                  <div v-for="item in entryList.leftTitle.selected" :key="item.id">
                     <v-checkbox
                       dense
                       hide-details
@@ -79,6 +81,7 @@
                         dense
                         hide-details
                         placeholder="请输入名称"
+                        @input="leftSearch"
                       />
                       <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
                         <div v-for="item in chartSource.leftObj.items" :key="item.key">
@@ -158,7 +161,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="firstChartId" :style="{height:`${chartHeight.chart1st}px`}"></div>
+        <div id="firstChartId" class="chartTransition" :style="{height:`${chartHeight.chart1st}px`}"></div>
         <div class="d-flex align-center mb-3">
           <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
           <div>
@@ -206,7 +209,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="secondChartId" :style="{height:`${chartHeight.chart2nd}px`}"></div>
+        <div id="secondChartId" class="chartTransition" :style="{height:`${chartHeight.chart2nd}px`}"></div>
         <div class="d-flex align-center mb-3">
           <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
           <div>
@@ -254,7 +257,7 @@
             </v-menu>
           </div>
         </div>
-        <div id="thirdChartId" :style="{height:`${chartHeight.chart3rd}px`}"></div>
+        <div id="thirdChartId" class="chartTransition" :style="{height:`${chartHeight.chart3rd}px`}"></div>
       </div>
     </v-card>
     <skeleton-modal ref="titleDialog"></skeleton-modal>
@@ -270,7 +273,6 @@ export default {
   components: { skeletonModal },
   data: () => ({
     perData: ['姓名', '患者编号', '性别', '出生日期', '最近诊断'],
-    allLData: [],
     selectedLData: {
       title: '',
       remarks: ''
@@ -332,7 +334,14 @@ export default {
     firstSeriesData: [],
     secondSeriesData: [],
     thirdSeriesData: [],
-    countSelectedList: 0
+    countSelectedList: 0,
+    entryList: {
+      leftTitle: {
+        value: '',
+        allLData: [],
+        selected: []
+      }
+    }
   }),
   props: ['wrapWidth', 'wrapHeight'],
   watch: {
@@ -365,7 +374,10 @@ export default {
       })
       this.chartSource.firstChart.option.yAxisData = arr
       this.chartSource.firstChart.option.tooltip = contentArr
-      this.chartHeight.chart1st = 210 + (val.length - 3) * 70
+      this.chartHeight.chart1st = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
+      this.firstChartData.resize({
+        height: this.chartHeight.chart1st
+      })
       this.initChart1st()
     },
     'chartSource.secondChart.selectedList' (val, oldVal) {
@@ -392,7 +404,10 @@ export default {
       })
       this.chartSource.secondChart.option.yAxisData = arr
       this.chartSource.secondChart.option.tooltip = contentArr
-      this.chartHeight.chart2nd = 210 + (val.length - 3) * 70
+      this.chartHeight.chart2nd = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
+      this.secondChartData.resize({
+        height: this.chartHeight.chart2nd
+      })
       this.initChart2nd()
     },
     'chartSource.thirdChart.selectedList' (val, oldVal) {
@@ -418,6 +433,14 @@ export default {
         this.thirdChartData = Echarts.init(document.getElementById('thirdChartId'))
       }
       this.initChart3rd()
+    },
+    isSelectLData (newV) {
+      if (!newV) {
+        setTimeout(() => {
+          this.entryList.leftTitle.value = ''
+          this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
+        }, 500)
+      }
     }
   },
   methods: {
@@ -431,12 +454,26 @@ export default {
       this.chartSource.leftObj.isEntryMenu = false
       this.chartSource.leftObj.selectedList = []
     },
+    leftTitleSearch () {
+      if (!this.entryList.leftTitle.value) {
+        this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
+        return
+      }
+      this.entryList.leftTitle.selected = []
+      this.entryList.leftTitle.allLData.forEach(e => {
+        if (e.title.includes(this.entryList.leftTitle.value)) {
+          this.entryList.leftTitle.selected.push(e)
+        }
+      })
+      console.log(this.entryList.leftTitle.value)
+    },
     addEntry (value) {
       this.chartSource[value].entryDialog = true
     },
     complete (value) {
       if (value === 0) {
-        if (this.selectedLData.title) {
+        console.log(this.selectedLData)
+        if (this.selectedLData && this.selectedLData.title) {
           this.isCreated = true
           this.chartSource.leftObj.title = this.selectedLData.title
           this.chartSource.leftObj.remarks = this.selectedLData.remarks
@@ -757,137 +794,14 @@ export default {
                 error: ''
               }
             ],
-            entryList: [
-              {
-                key: 'Key07BCDC47EE68981B',
-                isPartook: false,
-                mdsName: '',
-                inputName: '姓名',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key20CA50A1A599C44C',
-                isPartook: false,
-                mdsName: '',
-                inputName: '患者编号',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key55781532510340BB',
-                isPartook: false,
-                mdsName: '',
-                inputName: '性别',
-                inputTypeEnum: 'COMBO_BOX',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputComboBOX: {
-                  contexts: [
-                    {
-                      id: 'BF7D87DC',
-                      isInput: false,
-                      value: '男',
-                      label: '',
-                      error: false
-                    },
-                    {
-                      id: '2EFB6426',
-                      isInput: false,
-                      value: '女',
-                      label: '',
-                      error: false
-                    }
-                  ],
-                  chooseTypeEnum: 'SINGLE',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key8F55283F0C793873',
-                isPartook: false,
-                mdsName: '',
-                inputName: '出生日期',
-                inputTypeEnum: 'DATE',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key8236DC8FF782B5E0',
-                isPartook: false,
-                mdsName: '',
-                inputName: '最近诊断',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              }
-            ],
             items: [],
             entryValue: '',
-            id: 1,
-            isAddRecord: false,
-            isMenu: false,
-            isEntryMenu: false
+            id: 1
           },
           {
             id: 2,
             title: '左子标题1',
-            isMenu: false,
             isCreate: false,
-            isEntryMenu: false,
             entryValue: '',
             selectedEntryList: [
               {
@@ -950,80 +864,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key80B749DE0EFC409A',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左1内容1',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: true,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key126F2FCA0CD7A270',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左1内容2',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key2D0BAC57E2001766',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左1内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 3,
             title: '左子标题2',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: false,
             entryValue: '',
             selectedEntryList: [
@@ -1087,80 +932,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'KeyF3EEC331010FF903',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左2内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyE3A0C8ED278EC2F5',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左2内容2',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key073FB2C8E1878400',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左2内容3',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 4,
             title: '左子标题3',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: false,
             entryValue: '',
             selectedEntryList: [
@@ -1219,75 +995,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key8DDC02DDDF7DB5A0',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左3内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key874406FCD1E0344F',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左3内容2',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyE5CAFDA2281E2B0E',
-                isPartook: false,
-                mdsName: '',
-                inputName: '左3内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 5,
             title: '时间点1',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -1369,100 +1081,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key5510877DDD64C175',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点1时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyE7F65A2ABAAC7CF1',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点1内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key275DA844FBF1BDDC',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点1内容2',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key5A75E4E94880C051',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点1内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 6,
             title: '时间点2',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -1544,100 +1167,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key695E0B72911BE164',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点2时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyB5C7345DFFC4E2B0',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点2内容1',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key0B9288F4AC2DEFA1',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点2内容2',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyD8BFDDE90452E64E',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间点2内容3',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 6,
             title: '时间点3',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -1719,28 +1253,32 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
+            items: []
+          },
+          {
+            id: 17,
+            title: '时间点4',
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
               {
                 key: 'Key695E0B72911BE164',
                 isPartook: false,
                 mdsName: '',
-                inputName: '时间点2时间',
+                inputName: '时间点3时间',
                 inputTypeEnum: 'DATE',
                 isRequire: false,
                 remark: '',
                 switchTime: false,
                 timeFormat: 'date',
                 isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
+                value: ''
               },
               {
                 key: 'KeyB5C7345DFFC4E2B0',
                 isPartook: false,
                 mdsName: '',
-                inputName: '时间点2内容1',
+                inputName: '时间点3内容1',
                 inputTypeEnum: 'TEXT_INPUT_BOX',
                 isRequire: false,
                 remark: '',
@@ -1752,15 +1290,13 @@ export default {
                   context: '',
                   timeType: '',
                   timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
+                }
               },
               {
                 key: 'Key0B9288F4AC2DEFA1',
                 isPartook: false,
                 mdsName: '',
-                inputName: '时间点2内容2',
+                inputName: '时间点3内容2',
                 inputTypeEnum: 'NUMBER_INPUT_BOX',
                 isRequire: false,
                 remark: '',
@@ -1777,15 +1313,13 @@ export default {
                   referencerIsShow: false,
                   timeType: '',
                   timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
+                }
               },
               {
                 key: 'KeyD8BFDDE90452E64E',
                 isPartook: false,
                 mdsName: '',
-                inputName: '时间点2内容3',
+                inputName: '时间点3内容3',
                 inputTypeEnum: 'NUMBER_INPUT_BOX',
                 isRequire: false,
                 remark: '',
@@ -1802,17 +1336,186 @@ export default {
                   referencerIsShow: false,
                   timeType: '',
                   timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
+                }
               }
-            ]
+            ],
+            items: []
+          },
+          {
+            id: 18,
+            title: '时间点5',
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
+              {
+                key: 'Key695E0B72911BE164',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3时间',
+                inputTypeEnum: 'DATE',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: 'date',
+                isBan: false,
+                value: ''
+              },
+              {
+                key: 'KeyB5C7345DFFC4E2B0',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容1',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              },
+              {
+                key: 'Key0B9288F4AC2DEFA1',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容2',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              },
+              {
+                key: 'KeyD8BFDDE90452E64E',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容3',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              }
+            ],
+            items: []
+          },
+          {
+            id: 19,
+            title: '时间点6',
+            isCreate: true,
+            entryValue: '',
+            selectedEntryList: [
+              {
+                key: 'Key695E0B72911BE164',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3时间',
+                inputTypeEnum: 'DATE',
+                isRequire: false,
+                remark: '',
+                switchTime: false,
+                timeFormat: 'date',
+                isBan: false,
+                value: ''
+              },
+              {
+                key: 'KeyB5C7345DFFC4E2B0',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容1',
+                inputTypeEnum: 'TEXT_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputText: {
+                  context: '',
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              },
+              {
+                key: 'Key0B9288F4AC2DEFA1',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容2',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              },
+              {
+                key: 'KeyD8BFDDE90452E64E',
+                isPartook: false,
+                mdsName: '',
+                inputName: '时间点3内容3',
+                inputTypeEnum: 'NUMBER_INPUT_BOX',
+                isRequire: false,
+                remark: '',
+                switchTime: true,
+                timeFormat: 'date',
+                isBan: false,
+                value: '',
+                inputNumber: {
+                  inputBegin: '',
+                  inputEnd: '',
+                  referencerBegin: '',
+                  referencerEnd: '',
+                  inputIsShow: false,
+                  referencerIsShow: false,
+                  timeType: '',
+                  timeFormat: 'date'
+                }
+              }
+            ],
+            items: []
           },
           {
             id: 7,
             title: '时间段1',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -1894,100 +1597,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'KeyB1EDC8B07D8AF60D',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段1时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyD78C2F0E25269391',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段1内容1',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key00E7F19A53E8C45E',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段1内容2',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyE9537B3313A575D7',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段1内容3',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 8,
             title: '时间段2',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2069,100 +1683,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key46906585862B9650',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2时间',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key33AE6DCC339D8074',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key1D9C9DFA6400632A',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容2',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key6954792B6E7F64F3',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 14,
             title: '时间段3',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2244,100 +1769,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key46906585862B9650',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2时间',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key33AE6DCC339D8074',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key1D9C9DFA6400632A',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容2',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key6954792B6E7F64F3',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 15,
             title: '时间段4',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2419,100 +1855,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key46906585862B9650',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2时间',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key33AE6DCC339D8074',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key1D9C9DFA6400632A',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容2',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key6954792B6E7F64F3',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 16,
             title: '时间段5',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2594,100 +1941,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key46906585862B9650',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2时间',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key33AE6DCC339D8074',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容1',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: '',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: ''
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key1D9C9DFA6400632A',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容2',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key6954792B6E7F64F3',
-                isPartook: false,
-                mdsName: '',
-                inputName: '时间段2内容3',
-                inputTypeEnum: 'TEXT_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'daterange',
-                isBan: false,
-                value: '',
-                inputText: {
-                  context: '',
-                  timeType: '',
-                  timeFormat: 'daterange'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 9,
             title: '折线图1',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2728,55 +1986,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key9CEB14643DE68294',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图1时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key8CEF74070FED7C1B',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图1数据',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 10,
             title: '折线图2',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2817,55 +2031,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key954C400AAB40EB93',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图2时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key929AD28DCA93BAFC',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图2数据',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 11,
             title: '折线图3',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2906,55 +2076,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key641CC03282872DD5',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图3时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key28E59F417E3CF373',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图3数据',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 12,
             title: '折线图4',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -2995,55 +2121,11 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'KeyA8FCFF1FE292F800',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图4时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'KeyAF984022E82A3885',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图4数据',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           },
           {
             id: 13,
             title: '折线图5',
-            isMenu: false,
-            isEntryMenu: false,
             isCreate: true,
             entryValue: '',
             selectedEntryList: [
@@ -3084,49 +2166,7 @@ export default {
                 }
               }
             ],
-            items: [],
-            entryList: [
-              {
-                key: 'Key9FC75C6FD1E07441',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图5时间',
-                inputTypeEnum: 'DATE',
-                isRequire: false,
-                remark: '',
-                switchTime: false,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                isClass: false,
-                error: ''
-              },
-              {
-                key: 'Key570030435E55A8D8',
-                isPartook: false,
-                mdsName: '',
-                inputName: '折线图5数据',
-                inputTypeEnum: 'NUMBER_INPUT_BOX',
-                isRequire: false,
-                remark: '',
-                switchTime: true,
-                timeFormat: 'date',
-                isBan: false,
-                value: '',
-                inputNumber: {
-                  inputBegin: '',
-                  inputEnd: '',
-                  referencerBegin: '',
-                  referencerEnd: '',
-                  inputIsShow: false,
-                  referencerIsShow: false,
-                  timeType: '',
-                  timeFormat: 'date'
-                },
-                isClass: false,
-                error: ''
-              }
-            ]
+            items: []
           }
         ]
       },
@@ -3136,7 +2176,8 @@ export default {
     templateData.dataSource.data.forEach(e => {
       if (e.isCreate === false) {
         // 筛选不能新增的作为左下角的配置项
-        this.allLData.push(e)
+        this.entryList.leftTitle.allLData.push(e)
+        this.entryList.leftTitle.selected.push(e)
       } else if (e.isCreate === true) {
         // 筛选能新增的作为echart子标题选择项
         const len = e.selectedEntryList.length
@@ -3149,16 +2190,13 @@ export default {
           if (DATE && date) { // 筛选时间点和折线图
             if (NUMBER_INPUT_BOX && revDate && len === 2) {
               this.chartSource.thirdChart.items.push(e)
-              this.chartSource.thirdChart.selectedList.push(e)
               break
             } else {
               this.chartSource.firstChart.items.push(e)
-              this.chartSource.firstChart.selectedList.push(e)
               break
             }
           } else if (DATE && daterange) { // 筛选时间段
             this.chartSource.secondChart.items.push(e)
-            this.chartSource.secondChart.selectedList.push(e)
             break
           }
         }
@@ -3179,5 +2217,7 @@ export default {
 </script>
 
 <style scoped>
-
+.chartTransition{
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) 0s, visibility 0s ease 0s
+}
 </style>
