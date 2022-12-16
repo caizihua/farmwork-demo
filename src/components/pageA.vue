@@ -365,7 +365,6 @@ export default {
     // 选择子标题
     isSelectLData (newVal, oldVal) {
       // 打开弹窗
-      console.log(this.entryList.leftTitle.selected)
       if (newVal && !oldVal) {
         this.oldSelectedList = this.selectedLData
       }
