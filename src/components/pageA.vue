@@ -26,7 +26,7 @@
               <v-card class="d-flex flex-column pa-2" style="max-width:210px">
                 <v-text-field
                   v-model="entryList.leftTitle.value"
-                  @input="leftTitleSearch"
+                  @input="handleSearch('leftTitle')"
                   prepend-inner-icon="mdi-magnify"
                   clearable
                   outlined
@@ -81,10 +81,11 @@
                         dense
                         hide-details
                         placeholder="请输入名称"
-                        @input="leftSearch"
+                        v-model="entryList.leftObj"
+                        @input="handleSearch('leftObj')"
                       />
                       <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                        <div v-for="item in chartSource.leftObj.items" :key="item.key">
+                        <div v-for="item in chartSource.leftObj.searchList" :key="item.key">
                           <v-checkbox
                             dense
                             hide-details
@@ -136,6 +137,8 @@
                       dense
                       hide-details
                       placeholder="请输入名称"
+                      v-model="entryList.firstChart"
+                      @input="handleSearch('firstChart')"
                     />
                     <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
                       <div v-for="item in chartSource.firstChart.items" :key="item.key">
@@ -184,6 +187,8 @@
                       dense
                       hide-details
                       placeholder="请输入名称"
+                      v-model="entryList.secondChart"
+                      @input="handleSearch('secondChart')"
                     />
                     <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
                       <div v-for="item in chartSource.secondChart.items" :key="item.key">
@@ -232,6 +237,8 @@
                       dense
                       hide-details
                       placeholder="请输入名称"
+                      v-model="entryList.thirdChart"
+                      @input="handleSearch('thirdChart')"
                     />
                     <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
                       <div v-for="item in chartSource.thirdChart.items" :key="item.key">
@@ -295,7 +302,8 @@ export default {
         isMenu: false,
         isEntryMenu: false,
         items: [], // 全部输入项
-        selectedList: [] // 选中的输入项
+        selectedList: [], // 选中的输入项
+        allItems: []
       },
       firstChart: {
         id: 1,
@@ -303,7 +311,8 @@ export default {
         isMenu: false,
         isEntryMenu: false,
         items: [],
-        selectedList: [],
+        selectedList: [], // 选中的输入项
+        allItems: [],
         option: {
           yAxisData: [],
           tooltip: []
@@ -314,6 +323,7 @@ export default {
         title: '事件记录',
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
+        allItems: [],
         option: {
           yAxisData: [],
           tooltip: []
@@ -324,6 +334,7 @@ export default {
         title: '变化趋势',
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
+        allItems: [],
         option: {
           yAxisData: []
         }
@@ -335,12 +346,16 @@ export default {
     secondSeriesData: [],
     thirdSeriesData: [],
     countSelectedList: 0,
-    entryList: {
+    entryList: { // 搜索框内的参数
       leftTitle: {
         value: '',
         allLData: [],
         selected: []
-      }
+      },
+      leftObj: '',
+      firstChart: '',
+      secondChart: '',
+      thirdChart: ''
     }
   }),
   props: ['wrapWidth', 'wrapHeight'],
@@ -434,11 +449,43 @@ export default {
       }
       this.initChart3rd()
     },
-    isSelectLData (newV) {
-      if (!newV) {
+    isSelectLData (val) {
+      if (!val) {
         setTimeout(() => {
           this.entryList.leftTitle.value = ''
           this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
+        }, 500)
+      }
+    },
+    'chartSource.leftObj.isEntryMenu' (val) {
+      if (!val) {
+        setTimeout(() => {
+          this.entryList.leftObj = ''
+          this.chartSource.leftObj.items = this.chartSource.leftObj.allItems
+        }, 500)
+      }
+    },
+    'chartSource.firstChart.isEntryMenu' (val) {
+      if (!val) {
+        setTimeout(() => {
+          this.entryList.firstChart = ''
+          this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
+        }, 500)
+      }
+    },
+    'chartSource.secondChart.isEntryMenu' (val) {
+      if (!val) {
+        setTimeout(() => {
+          this.entryList.firstChart = ''
+          this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
+        }, 500)
+      }
+    },
+    'chartSource.thirdChart.isEntryMenu' (val) {
+      if (!val) {
+        setTimeout(() => {
+          this.entryList.thirdChart = ''
+          this.chartSource.thirdChart.items = this.chartSource.thirdChart.allItems
         }, 500)
       }
     }
@@ -454,30 +501,60 @@ export default {
       this.chartSource.leftObj.isEntryMenu = false
       this.chartSource.leftObj.selectedList = []
     },
-    leftTitleSearch () {
-      if (!this.entryList.leftTitle.value) {
-        this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
-        return
+    handleSearch (value) {
+      switch (value) {
+        case 'leftTitle':
+          if (!this.entryList.leftTitle.value) {
+            this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
+            return
+          }
+          this.entryList.leftTitle.value.trim()
+          this.entryList.leftTitle.selected = []
+          this.entryList.leftTitle.allLData.forEach(e => {
+            if (e.title.includes(this.entryList.leftTitle.value)) {
+              this.entryList.leftTitle.selected.push(e)
+            }
+          })
+          break
+        case 'leftObj':
+          if (!this.entryList.leftObj) {
+            this.chartSource.leftObj.searchList = this.chartSource.leftObj.items
+            return
+          }
+          this.entryList.leftObj.trim()
+          this.chartSource.leftObj.searchList = []
+          this.chartSource.leftObj.items.forEach(e => {
+            if (e.inputName.includes(this.entryList.leftObj)) {
+              this.chartSource.leftObj.searchList.push(e)
+            }
+          })
+          break
+        case 'firstChart':
+          if (!this.entryList.firstChart) {
+            this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
+            return
+          }
+          this.entryList.firstChart.trim()
+          this.chartSource.firstChart.items = []
+          this.chartSource.firstChart.allItems.forEach(e => {
+            if (e.title.includes(this.entryList.firstChart)) {
+              this.chartSource.firstChart.items.push(e)
+            }
+          })
+          break
       }
-      this.entryList.leftTitle.selected = []
-      this.entryList.leftTitle.allLData.forEach(e => {
-        if (e.title.includes(this.entryList.leftTitle.value)) {
-          this.entryList.leftTitle.selected.push(e)
-        }
-      })
-      console.log(this.entryList.leftTitle.value)
     },
     addEntry (value) {
       this.chartSource[value].entryDialog = true
     },
     complete (value) {
       if (value === 0) {
-        console.log(this.selectedLData)
         if (this.selectedLData && this.selectedLData.title) {
           this.isCreated = true
           this.chartSource.leftObj.title = this.selectedLData.title
           this.chartSource.leftObj.remarks = this.selectedLData.remarks
           this.chartSource.leftObj.items = this.selectedLData.selectedEntryList
+          this.chartSource.leftObj.searchList = this.selectedLData.selectedEntryList
         }
       } else {
         this.chartSource[value].isMenu = false
@@ -2190,13 +2267,16 @@ export default {
           if (DATE && date) { // 筛选时间点和折线图
             if (NUMBER_INPUT_BOX && revDate && len === 2) {
               this.chartSource.thirdChart.items.push(e)
+              this.chartSource.thirdChart.allItems.push(e)
               break
             } else {
               this.chartSource.firstChart.items.push(e)
+              this.chartSource.firstChart.allItems.push(e)
               break
             }
           } else if (DATE && daterange) { // 筛选时间段
             this.chartSource.secondChart.items.push(e)
+            this.chartSource.secondChart.allItems.push(e)
             break
           }
         }
