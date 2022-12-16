@@ -155,7 +155,7 @@
                       </div>
                     </div>
                     <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('firstChart')">完成</v-btn>
+                      <v-btn color="primary" small text @click="complete('firstChart','handleFirstChartData')">完成</v-btn>
                     </div>
                   </v-card>
                 </v-menu>
@@ -205,7 +205,7 @@
                       </div>
                     </div>
                     <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('secondChart')">完成</v-btn>
+                      <v-btn color="primary" small text @click="complete('secondChart','handleSecondChartData')">完成</v-btn>
                     </div>
                   </v-card>
                 </v-menu>
@@ -255,7 +255,7 @@
                       </div>
                     </div>
                     <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('thirdChart')">完成</v-btn>
+                      <v-btn color="primary" small text @click="complete('thirdChart','handleThirdChartData')">完成</v-btn>
                     </div>
                   </v-card>
                 </v-menu>
@@ -356,141 +356,50 @@ export default {
       firstChart: '',
       secondChart: '',
       thirdChart: ''
-    }
+    },
+    isClick: false,
+    oldSelectedList: []
   }),
   props: ['wrapWidth', 'wrapHeight'],
   watch: {
-    selectedLData (val) {
-      this.chartSource.leftObj.title = val.title || ''
-      this.chartSource.leftObj.remarks = val.remarks || ''
-      this.chartSource.leftObj.items = val.selectedEntryList || []
-    },
-    'chartSource.firstChart.selectedList' (val, oldVal) {
-      if (val === oldVal && this.countSelectedList++ > 2) return
-      const arr = []
-      const contentArr = []
-      this.firstSeriesData = []
-      val.forEach(e => {
-        // 存入标题
-        arr.push(e.title)
-        // 存入tooltip信息
-        const ttArr = []
-        e.selectedEntryList.forEach(ele => {
-          ttArr.push(ele.inputName)
-        })
-        contentArr.push(ttArr)
-        for (let i = 0; i < 5; i++) {
-          const j = Math.ceil(Math.random() * 5 + i * 5)
-          this.firstSeriesData.push({
-            value: [moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), e.title],
-            tipData: ttArr
-          })
-        }
-      })
-      this.chartSource.firstChart.option.yAxisData = arr
-      this.chartSource.firstChart.option.tooltip = contentArr
-      this.chartHeight.chart1st = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
-      this.firstChartData.resize({
-        height: this.chartHeight.chart1st
-      })
-      this.initChart1st()
-    },
-    'chartSource.secondChart.selectedList' (val, oldVal) {
-      if (val === oldVal && this.countSelectedList++ > 2) return
-      const arr = []
-      const contentArr = []
-      this.secondSeriesData = []
-      val.forEach(e => {
-        // 存入标题
-        arr.push(e.title)
-        // 存入tooltip信息
-        const ttArr = []
-        e.selectedEntryList.forEach(ele => {
-          ttArr.push(ele.inputName)
-        })
-        contentArr.push(ttArr)
-        for (let i = 0; i < 3; i++) {
-          const j = Math.ceil(Math.random() * 4 + i * 8)
-          this.secondSeriesData.push({
-            value: [e.title, moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), moment().format(`YYYY-MM-${j + 2 > 9 ? '' : 0}${j + 3} 00:00`)],
-            tipData: ttArr
-          })
-        }
-      })
-      this.chartSource.secondChart.option.yAxisData = arr
-      this.chartSource.secondChart.option.tooltip = contentArr
-      this.chartHeight.chart2nd = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
-      this.secondChartData.resize({
-        height: this.chartHeight.chart2nd
-      })
-      this.initChart2nd()
-    },
-    'chartSource.thirdChart.selectedList' (val, oldVal) {
-      if (val === oldVal && this.countSelectedList++ > 2) return
-      const titleArr = []
-      this.thirdSeriesData = []
-      val.forEach((e) => {
-        titleArr.push(e.title)
-        const arr = ['01', '05', '08', '13', '17', '21', '25', '28']
-        const dateArr = []
-        arr.forEach(t => {
-          dateArr.push([moment().format(`YYYY-MM-${t} 00:00`), Math.floor(Math.random() * 97 + 2)])
-        })
-        this.thirdSeriesData.push({
-          name: e.title,
-          type: 'line',
-          data: dateArr
-        })
-      })
-      this.chartSource.thirdChart.option.yAxisData = titleArr
-      if (this.thirdChartData) {
-        Echarts.dispose(this.thirdChartData)
-        this.thirdChartData = Echarts.init(document.getElementById('thirdChartId'))
+    // 选择子标题
+    isSelectLData (newVal, oldVal) {
+      // 打开弹窗
+      console.log(this.entryList.leftTitle.selected)
+      if (newVal && !oldVal) {
+        this.oldSelectedList = this.selectedLData
       }
-      this.initChart3rd()
-    },
-    isSelectLData (val) {
-      if (!val) {
+      // 关闭弹窗
+      if (!newVal && oldVal && !this.isClick) {
+        this.selectedLData = this.oldSelectedList
+      }
+      if (!newVal) {
         setTimeout(() => {
           this.entryList.leftTitle.value = ''
           this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
         }, 500)
       }
+      this.isClick = false
     },
-    'chartSource.leftObj.isEntryMenu' (val) {
-      if (!val) {
-        setTimeout(() => {
-          this.entryList.leftObj = ''
-          this.chartSource.leftObj.items = this.chartSource.leftObj.allItems
-        }, 500)
-      }
+    // 子标题输入项的二级菜单
+    'chartSource.leftObj.isEntryMenu' (i, j) {
+      this.handleEntryMenu(i, j, 'leftObj')
     },
-    'chartSource.firstChart.isEntryMenu' (val) {
-      if (!val) {
-        setTimeout(() => {
-          this.entryList.firstChart = ''
-          this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
-        }, 500)
-      }
+    // 时间点chart的二级菜单
+    'chartSource.firstChart.isEntryMenu' (i, j) {
+      this.handleEntryMenu(i, j, 'firstChart')
     },
-    'chartSource.secondChart.isEntryMenu' (val) {
-      if (!val) {
-        setTimeout(() => {
-          this.entryList.firstChart = ''
-          this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
-        }, 500)
-      }
+    // 时间段chart的二级菜单
+    'chartSource.secondChart.isEntryMenu' (i, j) {
+      this.handleEntryMenu(i, j, 'secondChart')
     },
-    'chartSource.thirdChart.isEntryMenu' (val) {
-      if (!val) {
-        setTimeout(() => {
-          this.entryList.thirdChart = ''
-          this.chartSource.thirdChart.items = this.chartSource.thirdChart.allItems
-        }, 500)
-      }
+    // 折线图chart的二级菜单
+    'chartSource.thirdChart.isEntryMenu' (i, j) {
+      this.handleEntryMenu(i, j, 'thirdChart')
     }
   },
   methods: {
+    // 删除子标题
     deleteLTitle () {
       this.selectedLData = {
         title: '',
@@ -501,6 +410,7 @@ export default {
       this.chartSource.leftObj.isEntryMenu = false
       this.chartSource.leftObj.selectedList = []
     },
+    // 搜索内容
     handleSearch (value) {
       switch (value) {
         case 'leftTitle':
@@ -544,10 +454,12 @@ export default {
           break
       }
     },
+    // 添加输入项
     addEntry (value) {
       this.chartSource[value].entryDialog = true
     },
-    complete (value) {
+    // 点击完成按钮
+    complete (value, chart) {
       if (value === 0) {
         if (this.selectedLData && this.selectedLData.title) {
           this.isCreated = true
@@ -557,13 +469,118 @@ export default {
           this.chartSource.leftObj.searchList = this.selectedLData.selectedEntryList
         }
       } else {
+        if (chart) this[chart](this.chartSource[value].selectedList)
         this.chartSource[value].isMenu = false
         this.chartSource[value].isEntryMenu = false
       }
+      this.isClick = true
       this.isSelectLData = false
     },
+    // 清空输入项
     clearEntry (value) {
       this.chartSource[value].selectedList = []
+    },
+    // 二级弹窗事件
+    handleEntryMenu (newVal, oldVal, name) {
+      // 打开弹窗
+      if (newVal && !oldVal) {
+        this.oldSelectedList = this.chartSource[name].selectedList
+      }
+      // 关闭弹窗
+      if (!newVal && oldVal && !this.isClick) {
+        this.chartSource[name].selectedList = this.oldSelectedList
+      }
+      if (!newVal) {
+        setTimeout(() => {
+          this.entryList[name] = ''
+          this.chartSource[name].items = this.chartSource[name].allItems
+        }, 500)
+      }
+      this.isClick = false
+    },
+    // 传入时间点chart的数据
+    handleFirstChartData (val) {
+      const arr = []
+      const contentArr = []
+      this.firstSeriesData = []
+      val.forEach(e => {
+        // 存入标题
+        arr.push(e.title)
+        // 存入tooltip信息
+        const ttArr = []
+        e.selectedEntryList.forEach(ele => {
+          ttArr.push(ele.inputName)
+        })
+        contentArr.push(ttArr)
+        for (let i = 0; i < 5; i++) {
+          const j = Math.ceil(Math.random() * 5 + i * 5)
+          this.firstSeriesData.push({
+            value: [moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), e.title],
+            tipData: ttArr
+          })
+        }
+      })
+      this.chartSource.firstChart.option.yAxisData = arr
+      this.chartSource.firstChart.option.tooltip = contentArr
+      this.chartHeight.chart1st = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
+      this.firstChartData.resize({
+        height: this.chartHeight.chart1st
+      })
+      this.initChart1st()
+    },
+    // 传入时间段chart的数据
+    handleSecondChartData (val) {
+      const arr = []
+      const contentArr = []
+      this.secondSeriesData = []
+      val.forEach(e => {
+        // 存入标题
+        arr.push(e.title)
+        // 存入tooltip信息
+        const ttArr = []
+        e.selectedEntryList.forEach(ele => {
+          ttArr.push(ele.inputName)
+        })
+        contentArr.push(ttArr)
+        for (let i = 0; i < 3; i++) {
+          const j = Math.ceil(Math.random() * 4 + i * 8)
+          this.secondSeriesData.push({
+            value: [e.title, moment().format(`YYYY-MM-${j > 9 ? '' : 0}${j} 00:00`), moment().format(`YYYY-MM-${j + 2 > 9 ? '' : 0}${j + 3} 00:00`)],
+            tipData: ttArr
+          })
+        }
+      })
+      this.chartSource.secondChart.option.yAxisData = arr
+      this.chartSource.secondChart.option.tooltip = contentArr
+      this.chartHeight.chart2nd = val.length > 3 ? 210 + (val.length - 3) * 70 : 210
+      this.secondChartData.resize({
+        height: this.chartHeight.chart2nd
+      })
+      this.initChart2nd()
+    },
+    // 传入折线图chart的数据
+    handleThirdChartData (val) {
+      const titleArr = []
+      this.thirdSeriesData = []
+      val.forEach((e) => {
+        titleArr.push(e.title)
+        const arr = ['01', '05', '08', '13', '17', '21', '25', '28']
+        const dateArr = []
+        arr.forEach(t => {
+          dateArr.push([moment().format(`YYYY-MM-${t} 00:00`), Math.floor(Math.random() * 97 + 2)])
+        })
+        this.thirdSeriesData.push({
+          name: e.title,
+          type: 'line',
+          data: dateArr
+        })
+      })
+      this.chartSource.thirdChart.option.yAxisData = titleArr
+      if (this.thirdChartData) {
+        Echarts.dispose(this.thirdChartData)
+        this.thirdChartData = Echarts.init(document.getElementById('thirdChartId'))
+      }
+      this.initChart3rd()
     },
     initChart1st () {
       const option = {
@@ -2292,6 +2309,9 @@ export default {
     this.initChart1st()
     this.initChart2nd()
     this.initChart3rd()
+    this.handleFirstChartData(this.chartSource.firstChart.selectedList)
+    this.handleSecondChartData(this.chartSource.secondChart.selectedList)
+    this.handleThirdChartData(this.chartSource.thirdChart.selectedList)
   }
 }
 </script>
