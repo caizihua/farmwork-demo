@@ -26,7 +26,9 @@
               <v-card class="d-flex flex-column pa-2" style="max-width:210px">
                 <v-text-field
                   v-model="entryList.leftTitle.value"
-                  @input="handleSearch('leftTitle')"
+                  @input="handleSearch('title')"
+                  @click:prepend-inner="handleSearch('title')"
+                  @click:clear="clearSearch('title')"
                   prepend-inner-icon="mdi-magnify"
                   clearable
                   outlined
@@ -49,7 +51,7 @@
                   </div>
                 </div>
                 <div class="d-flex justify-end">
-                  <v-btn color="primary" small text @click="complete(0)">完成</v-btn>
+                  <v-btn color="primary" small text @click="complete('title')">完成</v-btn>
                 </div>
               </v-card>
             </v-menu>
@@ -61,17 +63,17 @@
             <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
             <div>
               <v-menu offset-x
-                      v-model="chartSource.leftObj.isMenu">
+                      v-model="entryList.leftObj.isMenu">
                 <template v-slot:activator="{ on, attrs }">
                   <div class="pr-2" v-bind="attrs" v-on="on"> {{chartSource.leftObj.title}}</div>
                 </template>
                 <v-card class="d-flex flex-column" elevation="0">
                   <v-btn color="primary" text @click="deleteLTitle">删除子标题</v-btn>
                   <v-menu offset-x
-                          v-model="chartSource.leftObj.isEntryMenu"
+                          v-model="entryList.leftObj.isEntryMenu"
                           :close-on-content-click="false">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-btn v-bind="attrs" v-on="on" color="primary" text @click="addEntry('leftObj')">添加输入项</v-btn>
+                      <v-btn v-bind="attrs" v-on="on" color="primary" text @click="addEntry()">添加输入项</v-btn>
                     </template>
                     <v-card class="d-flex flex-column pa-2" style="max-width:210px">
                       <v-text-field
@@ -81,15 +83,17 @@
                         dense
                         hide-details
                         placeholder="请输入名称"
-                        v-model="entryList.leftObj"
-                        @input="handleSearch('leftObj')"
+                        v-model="entryList.leftObj.value"
+                        @input="handleSearch('entry')"
+                        @click:prepend-inner="handleSearch('entry')"
+                        @click:clear="clearSearch('entry')"
                       />
                       <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                        <div v-for="item in chartSource.leftObj.searchList" :key="item.key">
+                        <div v-for="item in entryList.leftObj.unSelectedItems" :key="item.key">
                           <v-checkbox
                             dense
                             hide-details
-                            v-model="chartSource.leftObj.selectedList"
+                            v-model="entryList.leftObj.selectedItems"
                             :value="item"
                           >
                             <template v-slot:label>
@@ -99,11 +103,11 @@
                         </div>
                       </div>
                       <div class="d-flex justify-end">
-                        <v-btn color="primary" small text @click="complete('leftObj')">完成</v-btn>
+                        <v-btn color="primary" small text @click="complete('entry')">完成</v-btn>
                       </div>
                     </v-card>
                   </v-menu>
-                  <v-btn color="primary" text @click="clearEntry('leftObj')">清空输入项</v-btn>
+                  <v-btn color="primary" text @click="clearEntry()">清空输入项</v-btn>
                 </v-card>
               </v-menu>
             </div>
@@ -115,155 +119,32 @@
       </div>
       <!--右边echart相关-->
       <div class="ma-3" :style="{width:`${wrapWidth-250}px`}">
-        <div class="d-flex align-center mb-3">
-          <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
-          <div>
-            <v-menu offset-x v-model="chartSource.firstChart.isMenu">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="pr-2" v-bind="attrs" v-on="on">{{chartSource.firstChart.title}}</div>
-              </template>
-              <v-card class="d-flex flex-column" elevation="0">
-                <v-menu offset-x
-                        v-model="chartSource.firstChart.isEntryMenu"
-                        :close-on-content-click="false">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" color="primary" text @click="addEntry('firstChart')">选择子标题</v-btn>
-                  </template>
-                  <v-card class="d-flex flex-column pa-2" style="max-width:210px">
-                    <v-text-field
-                      prepend-inner-icon="mdi-magnify"
-                      clearable
-                      outlined
-                      dense
-                      hide-details
-                      placeholder="请输入名称"
-                      v-model="entryList.firstChart"
-                      @input="handleSearch('firstChart')"
-                    />
-                    <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                      <div v-for="item in chartSource.firstChart.items" :key="item.key">
-                        <v-checkbox
-                          dense
-                          hide-details
-                          v-model="chartSource.firstChart.selectedList"
-                          :value="item"
-                        >
-                          <template v-slot:label>
-                            <div class="generate-name">{{item.title}}</div>
-                          </template>
-                        </v-checkbox>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('firstChart','handleFirstChartData')">完成</v-btn>
-                    </div>
-                  </v-card>
-                </v-menu>
-                <v-btn color="primary" text @click="clearEntry('firstChart')">清空子标题</v-btn>
-              </v-card>
-            </v-menu>
-          </div>
-        </div>
+        <select-menu
+          :title="'事件记录'"
+          :chart="'firstChart'"
+          :selectedList="chartSource.firstChart.selectedList"
+          :unSelectedList="chartSource.firstChart.unSelectedList"
+          @getReturnItems="getReturnItems"
+          @clearSelectMenu="clearSelectMenu"
+        />
         <div id="firstChartId" class="chartTransition" :style="{height:`${chartHeight.chart1st}px`}"></div>
-        <div class="d-flex align-center mb-3">
-          <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
-          <div>
-            <v-menu offset-x v-model="chartSource.secondChart.isMenu">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="pr-2" v-bind="attrs" v-on="on">{{chartSource.secondChart.title}}</div>
-              </template>
-              <v-card class="d-flex flex-column" elevation="0">
-                <v-menu offset-x
-                        v-model="chartSource.secondChart.isEntryMenu"
-                        :close-on-content-click="false">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" color="primary" text @click="addEntry('secondChart')">选择子标题</v-btn>
-                  </template>
-                  <v-card class="d-flex flex-column pa-2" style="max-width:210px">
-                    <v-text-field
-                      prepend-inner-icon="mdi-magnify"
-                      clearable
-                      outlined
-                      dense
-                      hide-details
-                      placeholder="请输入名称"
-                      v-model="entryList.secondChart"
-                      @input="handleSearch('secondChart')"
-                    />
-                    <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                      <div v-for="item in chartSource.secondChart.items" :key="item.key">
-                        <v-checkbox
-                          dense
-                          hide-details
-                          v-model="chartSource.secondChart.selectedList"
-                          :value="item"
-                        >
-                          <template v-slot:label>
-                            <div class="generate-name">{{item.title}}</div>
-                          </template>
-                        </v-checkbox>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('secondChart','handleSecondChartData')">完成</v-btn>
-                    </div>
-                  </v-card>
-                </v-menu>
-                <v-btn color="primary" text @click="clearEntry('secondChart')">清空子标题</v-btn>
-              </v-card>
-            </v-menu>
-          </div>
-        </div>
+        <select-menu
+          :title="'事件记录2'"
+          :chart="'secondChart'"
+          :selectedList="chartSource.secondChart.selectedList"
+          :unSelectedList="chartSource.secondChart.unSelectedList"
+          @getReturnItems="getReturnItems"
+          @clearSelectMenu="clearSelectMenu"
+        />
         <div id="secondChartId" class="chartTransition" :style="{height:`${chartHeight.chart2nd}px`}"></div>
-        <div class="d-flex align-center mb-3">
-          <span class="mr-2" style="width:3px; height:25px; background-color: #5D7CC5;"></span>
-          <div>
-            <v-menu offset-x v-model="chartSource.thirdChart.isMenu">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="pr-2" v-bind="attrs" v-on="on">{{chartSource.thirdChart.title}}</div>
-              </template>
-              <v-card class="d-flex flex-column" elevation="0">
-                <v-menu offset-x
-                        v-model="chartSource.thirdChart.isEntryMenu"
-                        :close-on-content-click="false">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" color="primary" text @click="addEntry('thirdChart')">选择子标题</v-btn>
-                  </template>
-                  <v-card class="d-flex flex-column pa-2" style="max-width:210px">
-                    <v-text-field
-                      prepend-inner-icon="mdi-magnify"
-                      clearable
-                      outlined
-                      dense
-                      hide-details
-                      placeholder="请输入名称"
-                      v-model="entryList.thirdChart"
-                      @input="handleSearch('thirdChart')"
-                    />
-                    <div style="max-height:180px; max-width: 250px; overflow-y:auto;">
-                      <div v-for="item in chartSource.thirdChart.items" :key="item.key">
-                        <v-checkbox
-                          dense
-                          hide-details
-                          v-model="chartSource.thirdChart.selectedList"
-                          :value="item"
-                        >
-                          <template v-slot:label>
-                            <div class="generate-name">{{item.title}}</div>
-                          </template>
-                        </v-checkbox>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-end">
-                      <v-btn color="primary" small text @click="complete('thirdChart','handleThirdChartData')">完成</v-btn>
-                    </div>
-                  </v-card>
-                </v-menu>
-                <v-btn color="primary" text @click="clearEntry('thirdChart')">清空子标题</v-btn>
-              </v-card>
-            </v-menu>
-          </div>
-        </div>
+        <select-menu
+          :title="'变化趋势'"
+          :chart="'thirdChart'"
+          :selectedList="chartSource.thirdChart.selectedList"
+          :unSelectedList="chartSource.thirdChart.unSelectedList"
+          @getReturnItems="getReturnItems"
+          @clearSelectMenu="clearSelectMenu"
+        />
         <div id="thirdChartId" class="chartTransition" :style="{height:`${chartHeight.chart3rd}px`}"></div>
       </div>
     </v-card>
@@ -272,18 +153,19 @@
 </template>
 
 <script>
+import selectMenu from './select-menu'
 import moment from 'moment'
 import * as Echarts from 'echarts'
 import skeletonModal from './skeleton-modal'
 
 export default {
-  components: { skeletonModal },
+  components: { skeletonModal, selectMenu },
   data: () => ({
     perData: ['姓名', '患者编号', '性别', '出生日期', '最近诊断'],
-    selectedLData: {
+    selectedLData: { // 选中的左边的子标题
       title: '',
       remarks: ''
-    }, // 选中的左边的子标题
+    },
     isSelectLData: false,
     isCreated: false, // 是否添加了子标题
     chartHeight: { // echart高度
@@ -291,28 +173,24 @@ export default {
       chart2nd: 210,
       chart3rd: 270
     },
-    firstChartData: null,
+    firstChartData: null, // echart不需要存放到数据库的数据
     secondChartData: null,
     thirdChartData: null,
-    chartSource: {
+    chartSource: { // 存放到数据库的数据
       leftObj: {
         id: 0,
         title: '',
         remarks: '',
-        isMenu: false,
-        isEntryMenu: false,
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
-        allItems: []
+        unSelectedList: []
       },
       firstChart: {
         id: 1,
         title: '事件记录',
-        isMenu: false,
-        isEntryMenu: false,
         items: [],
         selectedList: [], // 选中的输入项
-        allItems: [],
+        unSelectedList: [],
         option: {
           yAxisData: [],
           tooltip: []
@@ -323,7 +201,7 @@ export default {
         title: '事件记录',
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
-        allItems: [],
+        unSelectedList: [],
         option: {
           yAxisData: [],
           tooltip: []
@@ -334,7 +212,7 @@ export default {
         title: '变化趋势',
         items: [], // 全部输入项
         selectedList: [], // 选中的输入项
-        allItems: [],
+        unSelectedList: [],
         option: {
           yAxisData: []
         }
@@ -346,16 +224,19 @@ export default {
     secondSeriesData: [],
     thirdSeriesData: [],
     countSelectedList: 0,
-    entryList: { // 搜索框内的参数
+    entryList: { // 搜索框相关参数
       leftTitle: {
         value: '',
         allLData: [],
         selected: []
       },
-      leftObj: '',
-      firstChart: '',
-      secondChart: '',
-      thirdChart: ''
+      leftObj: {
+        isMenu: false,
+        isEntryMenu: false,
+        value: '',
+        selectedItems: [],
+        unSelectedItems: []
+      }
     },
     isClick: false,
     oldSelectedList: []
@@ -381,20 +262,8 @@ export default {
       this.isClick = false
     },
     // 子标题输入项的二级菜单
-    'chartSource.leftObj.isEntryMenu' (i, j) {
-      this.handleEntryMenu(i, j, 'leftObj')
-    },
-    // 时间点chart的二级菜单
-    'chartSource.firstChart.isEntryMenu' (i, j) {
-      this.handleEntryMenu(i, j, 'firstChart')
-    },
-    // 时间段chart的二级菜单
-    'chartSource.secondChart.isEntryMenu' (i, j) {
-      this.handleEntryMenu(i, j, 'secondChart')
-    },
-    // 折线图chart的二级菜单
-    'chartSource.thirdChart.isEntryMenu' (i, j) {
-      this.handleEntryMenu(i, j, 'thirdChart')
+    'entryList.leftObj.isEntryMenu' (i, j) {
+      this.handleEntryMenu(i, j)
     }
   },
   methods: {
@@ -405,14 +274,11 @@ export default {
         remarks: ''
       }
       this.isCreated = false
-      this.chartSource.leftObj.isMenu = false
-      this.chartSource.leftObj.isEntryMenu = false
-      this.chartSource.leftObj.selectedList = []
     },
     // 搜索内容
     handleSearch (value) {
       switch (value) {
-        case 'leftTitle':
+        case 'title':
           if (!this.entryList.leftTitle.value) {
             this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
             return
@@ -425,80 +291,103 @@ export default {
             }
           })
           break
-        case 'leftObj':
-          if (!this.entryList.leftObj) {
-            this.chartSource.leftObj.searchList = this.chartSource.leftObj.items
-            return
+        case 'entry':
+          console.log(this.chartSource.leftObj.unSelectedList)
+          this.entryList.leftObj.value = this.entryList.leftObj.value.trim()
+          if (this.entryList.leftObj.value === '') {
+            this.entryList.leftObj.unSelectedItems = this.chartSource.leftObj.unSelectedList
           }
-          this.entryList.leftObj.trim()
-          this.chartSource.leftObj.searchList = []
-          this.chartSource.leftObj.items.forEach(e => {
-            if (e.inputName.includes(this.entryList.leftObj)) {
-              this.chartSource.leftObj.searchList.push(e)
-            }
-          })
-          break
-        case 'firstChart':
-          if (!this.entryList.firstChart) {
-            this.chartSource.firstChart.items = this.chartSource.firstChart.allItems
-            return
-          }
-          this.entryList.firstChart.trim()
-          this.chartSource.firstChart.items = []
-          this.chartSource.firstChart.allItems.forEach(e => {
-            if (e.title.includes(this.entryList.firstChart)) {
-              this.chartSource.firstChart.items.push(e)
+          this.entryList.leftObj.unSelectedItems = []
+          this.chartSource.leftObj.unSelectedList.forEach(e => {
+            if (e.inputName.includes(this.entryList.leftObj.value)) {
+              this.entryList.leftObj.unSelectedItems.push(e)
             }
           })
           break
       }
     },
+    clearSearch (val) {
+      switch (val) {
+        case 'title':
+          this.entryList.leftTitle.value = ''
+          this.entryList.leftTitle.selected = this.entryList.leftTitle.allLData
+          break
+        case 'entry':
+          this.entryList.leftObj.value = ''
+          this.entryList.leftObj.unSelectedItems = this.chartSource.leftObj.unSelectedList
+          break
+      }
+    },
     // 添加输入项
-    addEntry (value) {
-      this.chartSource[value].entryDialog = true
+    addEntry () {
+      this.entryList.leftObj.value = ''
+      this.entryList.leftObj.unSelectedItems = this.chartSource.leftObj.unSelectedList
     },
     // 点击完成按钮
-    complete (value, chart) {
-      if (value === 0) {
+    complete (value) {
+      if (value === 'title') {
         if (this.selectedLData && this.selectedLData.title) {
           this.isCreated = true
           this.chartSource.leftObj.title = this.selectedLData.title
           this.chartSource.leftObj.remarks = this.selectedLData.remarks
           this.chartSource.leftObj.items = this.selectedLData.selectedEntryList
-          this.chartSource.leftObj.searchList = this.selectedLData.selectedEntryList
+          this.chartSource.leftObj.unSelectedList = this.selectedLData.selectedEntryList
+          this.chartSource.leftObj.selectedList = []
+          this.entryList.leftObj.selectedItems = []
         }
-      } else {
-        if (chart) this[chart](this.chartSource[value].selectedList)
-        this.chartSource[value].isMenu = false
-        this.chartSource[value].isEntryMenu = false
+      } else if (value === 'entry') {
+        this.chartSource.leftObj.selectedList = this.chartSource.leftObj.selectedList
+          .concat(this.entryList.leftObj.selectedItems
+            .filter(
+              v => !this.chartSource.leftObj.selectedList.includes(v)
+            )
+          )
+        this.chartSource.leftObj.unSelectedList =
+          this.chartSource.leftObj.unSelectedList
+            .concat(this.entryList.leftObj.selectedItems)
+            .filter(
+              v => this.chartSource.leftObj.unSelectedList.includes(v) && !this.entryList.leftObj.selectedItems.includes(v)
+            )
+        this.entryList.leftObj.isEntryMenu = false
+        this.entryList.leftObj.isMenu = false
       }
+      this.entryList.leftObj.isEntryMenu = false
+      this.entryList.leftObj.isMenu = false
       this.isClick = true
       this.isSelectLData = false
     },
     // 清空输入项
-    clearEntry (value) {
-      this.chartSource[value].selectedList = []
+    clearEntry () {
+      this.entryList.leftObj = {
+        isMenu: false,
+        isEntryMenu: false,
+        value: '',
+        selectedItems: [],
+        unSelectedItems: this.chartSource.leftObj.unSelectedList
+      }
+      this.chartSource.leftObj.selectedList = []
+      this.chartSource.leftObj.unSelectedList = this.chartSource.leftObj.items
     },
     // 二级弹窗事件
-    handleEntryMenu (newVal, oldVal, name) {
+    handleEntryMenu (newVal, oldVal) {
       // 打开弹窗
       if (newVal && !oldVal) {
-        this.oldSelectedList = this.chartSource[name].selectedList
+        this.oldSelectedList = this.chartSource.leftObj.selectedList
       }
       // 关闭弹窗
       if (!newVal && oldVal && !this.isClick) {
-        this.chartSource[name].selectedList = this.oldSelectedList
+        this.chartSource.leftObj.selectedList = this.oldSelectedList
       }
       if (!newVal) {
         setTimeout(() => {
-          this.entryList[name] = ''
-          this.chartSource[name].items = this.chartSource[name].allItems
+          this.entryList.leftObj.value = ''
+          this.entryList.leftObj.selectedItems = []
         }, 500)
       }
       this.isClick = false
     },
     // 传入时间点chart的数据
-    handleFirstChartData (val) {
+    firstChartHandleData (val) {
       const arr = []
       const contentArr = []
       this.firstSeriesData = []
@@ -528,7 +417,7 @@ export default {
       this.initChart1st()
     },
     // 传入时间段chart的数据
-    handleSecondChartData (val) {
+    secondChartHandleData (val) {
       const arr = []
       const contentArr = []
       this.secondSeriesData = []
@@ -558,7 +447,7 @@ export default {
       this.initChart2nd()
     },
     // 传入折线图chart的数据
-    handleThirdChartData (val) {
+    thirdChartHandleData (val) {
       const titleArr = []
       this.thirdSeriesData = []
       val.forEach((e) => {
@@ -580,6 +469,16 @@ export default {
         this.thirdChartData = Echarts.init(document.getElementById('thirdChartId'))
       }
       this.initChart3rd()
+    },
+    getReturnItems (chart, data) {
+      this.chartSource[chart].selectedList = data.selectedList
+      this.chartSource[chart].unSelectedList = data.unSelectedList
+      this[`${chart}HandleData`](this.chartSource[chart].selectedList)
+    },
+    clearSelectMenu (chart) {
+      this.chartSource[chart].selectedList = []
+      this.chartSource[chart].unSelectedList = this.chartSource[chart].items
+      this[`${chart}HandleData`](this.chartSource[chart].selectedList)
     },
     initChart1st () {
       const option = {
@@ -2283,16 +2182,16 @@ export default {
           if (DATE && date) { // 筛选时间点和折线图
             if (NUMBER_INPUT_BOX && revDate && len === 2) {
               this.chartSource.thirdChart.items.push(e)
-              this.chartSource.thirdChart.allItems.push(e)
+              this.chartSource.thirdChart.unSelectedList.push(e)
               break
             } else {
               this.chartSource.firstChart.items.push(e)
-              this.chartSource.firstChart.allItems.push(e)
+              this.chartSource.firstChart.unSelectedList.push(e)
               break
             }
           } else if (DATE && daterange) { // 筛选时间段
             this.chartSource.secondChart.items.push(e)
-            this.chartSource.secondChart.allItems.push(e)
+            this.chartSource.secondChart.unSelectedList.push(e)
             break
           }
         }
@@ -2308,15 +2207,15 @@ export default {
     this.initChart1st()
     this.initChart2nd()
     this.initChart3rd()
-    this.handleFirstChartData(this.chartSource.firstChart.selectedList)
-    this.handleSecondChartData(this.chartSource.secondChart.selectedList)
-    this.handleThirdChartData(this.chartSource.thirdChart.selectedList)
+    this.firstChartHandleData(this.chartSource.firstChart.selectedList)
+    this.secondChartHandleData(this.chartSource.secondChart.selectedList)
+    this.thirdChartHandleData(this.chartSource.thirdChart.selectedList)
   }
 }
 </script>
 
 <style scoped>
-.chartTransition{
+.chartTransition {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) 0s, visibility 0s ease 0s
 }
 </style>
